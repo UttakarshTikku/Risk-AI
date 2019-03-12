@@ -54,7 +54,7 @@ MAP = """
           ddddddeeeeffff f           qqrrrrtttttGGGGGGBIIIIHHHHHHHHH           
           ggggggghh ffff             qqsssss ttt GGGGGGIIIIIHHHHHHHH           
           ggggggghhhhh             qqq ss ss tt  GGGGGGIIIIIIIIIII  J          
-           gggggghhhh              qq   s ssAAAAAAKKKGGIIIIIIIII I JJ          
+           gggggghhhh              qq   s ssAAAAAAKKKGKIIIIIIIII I JJ          
            gggghhhhhh               uuuu     AAAAAKKKKKKIIIIIIII  JJ           
             ggghhh h               uuuuuuvvvvAAA AKKKKKKKIIIIIII  J            
               ii                  uuuuuuuvvvv AAAA  KKKKKKLLLLII               
