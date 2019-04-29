@@ -8,7 +8,6 @@ class StupidAI(AI):
     territories, and attacking wherever it can without any considerations of wisdom.
     """
     def initial_placement(self, empty, remaining):
-        print("Initial Placement")
         if empty:
             return random.choice(empty)
         else:
@@ -16,7 +15,6 @@ class StupidAI(AI):
             return t
 
     def attack(self):
-        print("Attack")
         for t in self.player.territories:
             for a in t.connect:
                 if a.owner != self.player:
@@ -24,7 +22,6 @@ class StupidAI(AI):
                         yield (t, a, None, None)
 
     def reinforce(self, available):
-        print("Reinforce")
         # for t in self.player.territories:
         #     print(t, "  ::: ", t.forces, "  :::   ", t.connect)
         border = [t for t in self.player.territories if t.border]
