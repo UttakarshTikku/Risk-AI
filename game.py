@@ -70,7 +70,6 @@ class Game(object):
         Calling this method triggers the display to be updated, and any AI
         players that have implemented event() to be notified.
         """
-        
         self.display.update(msg, territory=territory, player=player)
         
         LOG.info([str(m) for m in msg])

@@ -51,7 +51,7 @@ class CursesDisplay(Display):
                 curses.init_pair(i, i, curses.COLOR_BLACK)
         
         self.worldpad = curses.newpad(self.wy, self.wx)
-        self.infopad = curses.newpad(self.iy, self.ix)    
+        self.infopad = curses.newpad(self.iy, self.ix)
 
     def format(self, msg):
         if msg[0] == 'start':

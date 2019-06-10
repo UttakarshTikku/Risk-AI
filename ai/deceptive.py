@@ -4,18 +4,22 @@ import collections
 import math
 from recorder import Recorder
 from decision_engine import Decision_Engine
+import configuration as conf
 
-class TestAI(AI):
+class DeceptiveAI(AI):
     """
     BetterAI: Thinks about what it is doing a little more - picks a priority
     continent and priorities holding and reinforcing it.
     """
     
-
     def __init__(self, player, game, world, **kwargs):
-        self.recorder = Recorder('TestAI')
-        self.decision_engine = Decision_Engine(5, world)
-        super(TestAI, self).__init__( player, game, world, **kwargs)
+        deception_strategy = 0
+        for name, strategy in conf.deception_modes:
+            if player.name == name:
+                deception_strategy = strategy
+        self.recorder = Recorder("Deceptive"+str(deception_strategy)+"AI")
+        self.decision_engine = Decision_Engine(5, world, True,deception_strategy)
+        super(DeceptiveAI, self).__init__( player, game, world, **kwargs)
     
     def start(self):
         self.saveGamestate()

@@ -6,19 +6,20 @@ import pandas as pd
 from pathlib import Path
 import os
 import collections
-
 import time
 import intent_engine
+import previous_turn_checker as ptc
+import configuration as conf
 
 class Recorder(object):
     def __init__(self, whoami):
         self.whoami = whoami
-        self.intent = intent_engine.Intent_Engine(whoami,5,True)
-        self.learner = intent_engine.Intent_Engine(whoami)
+        self.intent = intent_engine.Intent_Engine(whoami,5,False,True)
         self.intents = []
+        self.old_wsi = []
+        self.predictions = []
 
     def recordGamestate(self, world, game):
-        self.intents = []
         list_of_wsi = []
         world_outlook = set()
         ai_names = []
@@ -53,33 +54,64 @@ class Recorder(object):
                 list_for_opponent.append((a.name+"_BORDER_FORCES", area_border_forces))
             list_for_opponent.append(("CONTINENTS_FULLY_OWNED", continents_fully_owned))
             list_of_wsi.append(list_for_opponent)
+            if conf.recorder_ON:
+                insert_header = False
+                if not Path('./'+self.whoami+'_REC/record.csv').exists() :
+                    insert_header = True
+                recorder = open('./'+self.whoami+'_REC/record.csv','a')
+                with recorder:
+                    row = dict(list_for_opponent)
+                    od=collections.OrderedDict(sorted(row.items()))
+                    writer = csv.DictWriter(recorder,od.keys())
+                    if insert_header:
+                        writer.writerow({k:k for k,v in od.items()})
+                    writer.writerow(od)
+        if conf.recorder_ON:
             insert_header = False
-            if not Path('./'+self.whoami+'_REC/record.csv').exists() :
+            if not Path('./'+self.whoami+'_REC/world_outlook.csv').exists() :
                 insert_header = True
-            recorder = open('./'+self.whoami+'_REC/record.csv','a')
+            recorder = open('./'+self.whoami+'_REC/world_outlook.csv','a')
             with recorder:
-                row = dict(list_for_opponent)
+                row = dict(world_outlook)
                 od=collections.OrderedDict(sorted(row.items()))
                 writer = csv.DictWriter(recorder,od.keys())
                 if insert_header:
                     writer.writerow({k:k for k,v in od.items()})
                 writer.writerow(od)
-        insert_header = False
-        if not Path('./'+self.whoami+'_REC/world_outlook.csv').exists() :
-            insert_header = True
-        recorder = open('./'+self.whoami+'_REC/world_outlook.csv','a')
-        with recorder:
-            row = dict(world_outlook)
-            od=collections.OrderedDict(sorted(row.items()))
-            writer = csv.DictWriter(recorder,od.keys())
-            if insert_header:
-                writer.writerow({k:k for k,v in od.items()})
-            writer.writerow(od)
+        previous_turn_results = ptc.find_previous_move_results(self.old_wsi, list_of_wsi, self.whoami, world)
+        learner_data = []
+        for i in self.intents:
+            for ai in ai_names:
+                if i[0] == ai[0]:
+                    for ptr in previous_turn_results:
+                        if ptr[0] == ai[1]:
+                            learner_data.append(ptc.merge_intended_and_actual(ptr[0], i[1],ptr[1], world))
+        if conf.recorder_ON:
+            if len(learner_data) > 0:
+                insert_header = False
+                if not Path('./'+self.whoami+'_REC/learner_data.csv').exists() :
+                    insert_header = True
+                recorder = open('./'+self.whoami+'_REC/learner_data.csv','a')
+                with recorder:
+                    for i in range(0,len(learner_data)):
+                        row = learner_data[i]
+                        writer = csv.DictWriter(recorder,row.keys())
+                        if insert_header:
+                            writer.writerow({k:k for k,v in row.items()})
+                            insert_header = False
+                        writer.writerow(row)
+        self.intents = []
+        self.predictions = []
         self.intent.record_online(list_of_wsi, world_outlook)
         for ai in ai_names:
-            self.intents.append((ai[0],self.intent.find_intent(game, ai[1])))
+            temp = self.intent.find_intent(game, ai[1])
+            self.intents.append((ai[0],temp))
+            self.predictions.append((ai[0], self.intent.get_intent_predictions(ai[1], ptc.expand_intent(temp, world))))
+        self.old_wsi = list_of_wsi
 
     def __del__(self):
-        timestamp = str(round(time.time() * 1000))
-        os.rename('./'+self.whoami+'_REC/record.csv', './'+self.whoami+'_REC/record'+timestamp+'.csv')
-        os.rename('./'+self.whoami+'_REC/world_outlook.csv', './'+self.whoami+'_REC/world_outlook'+timestamp+'.csv')
+        if conf.recorder_ON:
+            timestamp = str(round(time.time() * 1000))
+            os.rename('./'+self.whoami+'_REC/record.csv', './'+self.whoami+'_REC/record'+timestamp+'.csv')
+            os.rename('./'+self.whoami+'_REC/world_outlook.csv', './'+self.whoami+'_REC/world_outlook'+timestamp+'.csv')
+            os.rename('./'+self.whoami+'_REC/learner_data.csv', './'+self.whoami+'_REC/learner_data'+timestamp+'.csv')
