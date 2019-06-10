@@ -8,8 +8,15 @@ import configuration as conf
 
 class DeceptiveAI(AI):
     """
-    BetterAI: Thinks about what it is doing a little more - picks a priority
-    continent and priorities holding and reinforcing it.
+    DeceptiveAI is capable of using various deceptive strategies based on the selected deceptive
+    modes. The modes can be between 0-7 and are binary encoded. 
+        2^0 corresponds to fault lines
+        2^1 corresponds to encirclement
+        2^2 corresponds to feigned retreat
+    The encoding from 0-7 leads to zero or more of the deceptive strategies being used.
+
+    This class is mostly used as a wrapper and it delegates most of it's work to decision engine 
+    and intent engine.
     """
     
     def __init__(self, player, game, world, **kwargs):

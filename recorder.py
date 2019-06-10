@@ -18,7 +18,15 @@ class Recorder(object):
         self.intents = []
         self.old_wsi = []
         self.predictions = []
-
+ 
+    # This method is used to record the world state indicators and game state from the
+    # game data. This data is then sent to the intent engine which predicts the intent
+    # of the agents using the WSIs and Game States.
+    # This method also saves the world state indicators from previous turn and compares
+    # the change in World State Indicators with the predicted intents. By doing so, it
+    # prepares the training data for the intent engine.
+    # Additionally, this method writes the WSIs and related data into CSV files for
+    # future use.
     def recordGamestate(self, world, game):
         list_of_wsi = []
         world_outlook = set()
@@ -109,6 +117,8 @@ class Recorder(object):
             self.predictions.append((ai[0], self.intent.get_intent_predictions(ai[1], ptc.expand_intent(temp, world))))
         self.old_wsi = list_of_wsi
 
+    # Before the recorder is torn down, we need to rename the CSV files generated during the 
+    # gameplay to prevent naming clashes and clobbering of data in subsequent runs.
     def __del__(self):
         if conf.recorder_ON:
             timestamp = str(round(time.time() * 1000))
