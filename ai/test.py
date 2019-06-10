@@ -7,8 +7,8 @@ from decision_engine import Decision_Engine
 
 class TestAI(AI):
     """
-    BetterAI: Thinks about what it is doing a little more - picks a priority
-    continent and priorities holding and reinforcing it.
+    TestAI is basically a wrapper for an AI agent with intent recognition system and a
+    model-based non-deceptive decision engine.
     """
     
 

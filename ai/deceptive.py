@@ -8,6 +8,7 @@ import configuration as conf
 
 class DeceptiveAI(AI):
     """
+    DeceptiveAI builds on TestAI
     DeceptiveAI is capable of using various deceptive strategies based on the selected deceptive
     modes. The modes can be between 0-7 and are binary encoded. 
         2^0 corresponds to fault lines
