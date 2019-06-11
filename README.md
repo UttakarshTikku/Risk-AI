@@ -24,7 +24,9 @@ are also used as helpers of the deceptive agents.
 TO RUN THE GAME (Windows)
 ________________________________________________________________________
 The prerequisite is Python version >= 3.5
+
 First, run setup.bat
+
 setup.bat will install the dependencies and setup the requisite folder structure. 
 Then the game is runnable.
 
