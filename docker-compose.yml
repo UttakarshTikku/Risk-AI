@@ -1,7 +1,7 @@
 risk_app:
   image: ubuntu:18.04
   entrypoint: /bin/sh
-  # stdin_open: true
+  stdin_open: true
   tty: true
   volumes:
   - .:/tmp/
