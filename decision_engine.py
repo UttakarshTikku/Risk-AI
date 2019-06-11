@@ -9,6 +9,12 @@ from networkx import Graph
 
 
 class Decision_Engine(object):
+    """
+    This method begins by converting the game map into a graph and calculating the
+    least risky options for the player to make initial placements of troops. It reasons
+    about the map based on centrality and minimum spanning tree to find the most safest
+    and valuable territories.
+    """
     def __init__(self, steps, world, deceptive = False, strategies = 0):
         self.world = world
         self.deceptive = deceptive
@@ -35,6 +41,11 @@ class Decision_Engine(object):
         self.G = weighted_G
         self.mst = nx.algorithms.tree.minimum_spanning_tree(self.G)
 
+    """
+    This method generates priorities for the certain areas based on the territory centralities.
+    It considers all connected territories owned by the player as single nodes and modifies 
+    the approach towards the them.
+    """
     def area_priority_gen(self, world, player):
         self.crucial = []
         territory_graph= nx.Graph()
@@ -94,6 +105,11 @@ class Decision_Engine(object):
         area_centrality = sorted(area_centrality, key=lambda x: x[0])
         return [y for x,y,z in area_centrality]
 
+    """
+    This method makes use of the area_priority_gen() method to find the areas
+    that are most suitable and territories that are most vulnerable inside 
+    those areas.
+    """
     def priority(self, world, player):
         self.area_priority = self.area_priority_gen(world, player)
         priority = sorted([t for t in player.territories if t.border], 
@@ -101,6 +117,11 @@ class Decision_Engine(object):
         priority = [t for t in priority if t.area == priority[0].area]
         return priority if priority else list(player.territories)
 
+    """
+    Calls the analyse intent method to analyse expected model intents and used this knowledge
+    in conjunction with data-driven predictions to build a comprehensive strategy to
+    allocate reinforcements
+    """
     def reinforce(self, available, world, player, intents, predictions):
         self.analyse_intents(intents, player)
         self.build_strategy( world, player, predictions)
@@ -123,6 +144,7 @@ class Decision_Engine(object):
             available -= 1
         return result
 
+    # Helper method for reinforcements
     def reinforce_safest_territory(self, player, available, result):
         min_centrality = 99999
         territory_to_reinforce = None
@@ -133,6 +155,7 @@ class Decision_Engine(object):
         result[territory_to_reinforce] += available
         return (0, result)
 
+    # Helper method for reinforcements
     def reinforce_from_list(self, available, list_of_territories, result):
         for t in list_of_territories:
             if self.is_island_check(t):
@@ -152,6 +175,11 @@ class Decision_Engine(object):
                                 break
         return (available, result)
 
+    """
+    Calls the analyse intent method to analyse expected model intents and used this knowledge
+    in conjunction with data-driven predictions to build a comprehensive strategy to
+    attack, counter-attack or avoid confrontation
+    """
     def attack(self, world, player, intents, predictions):
         self.analyse_intents(intents, player)
         self.build_strategy( world, player, predictions)
@@ -191,6 +219,11 @@ class Decision_Engine(object):
                         yield (t, adj, lambda a, d: a > d + total - adj.forces + 3, 
                                lambda a: 1)
 
+    """
+    Calls the analyse intent method to analyse expected model intents and used this knowledge
+    in conjunction with data-driven predictions to build a comprehensive strategy to
+    allocate resources from least vulnerable areas to more vulnerable ones
+    """
     def freemove(self, world, player, intents, predictions):
         self.analyse_intents(intents, player)
         self.build_strategy( world, player, predictions)
@@ -230,6 +263,9 @@ class Decision_Engine(object):
                 return (src, dests[0], n)
         return None
 
+    """
+    Model based analysis of intents is orchestrated in this method
+    """
     def analyse_intents(self, intents, player):
         self.reset_state()
         for area in self.world.areas.values():
@@ -241,6 +277,11 @@ class Decision_Engine(object):
             for i in self.intent_types:
                 getattr(self,i+"_check")(player_name, i, intent[i], player)
 
+    """
+    A generic method which analyses all intents to divide territories into 
+    crucial(and vulnerable), vulnerable, requiring reinforcement and
+    capable of attacking neighbors
+    """
     def state_builder(self, player):
         for t in player.territories:
             for o in t.adjacent():
@@ -262,11 +303,17 @@ class Decision_Engine(object):
         self.territories_attack = compose(list, set)(self.territories_attack)
         self.territories_reinforce = compose(list, set)(self.territories_reinforce)
 
+    """
+    A fitness method to develop model based intent
+    """
     def conquer_one_territory_check(self,  player_name, intent_type, intent, player):
         if player_name == player.name:
             self.most_viable_attacks.extend(self.crucial_attack)
             self.most_viable_attacks.extend(self.territories_attack)
     
+    """
+    A fitness method to develop model based intent
+    """
     def occupy_continent_check(self,  player_name, intent_type, intent, player):
         if not player_name == player.name:
             for t in self.territories_reinforce:
@@ -278,7 +325,10 @@ class Decision_Engine(object):
                 if t.area.name in [x[1] for x in intent]:
                     self.areas_opportunity.append(t)
             self.areas_opportunity = compose(list, set)(self.areas_opportunity)
-        
+    
+    """
+    A fitness method to develop model based intent
+    """    
     def fortress_continent_check(self,  player_name, intent_type, intent, player):
         if not player_name == player.name:
             for t in self.territories_reinforce:
@@ -290,11 +340,17 @@ class Decision_Engine(object):
                 if t.area.name in [x[1] for x in intent]:
                     self.create_stronghold.append(t)
             self.create_stronghold = compose(list, set)(self.create_stronghold)
-    
+    """
+    UNIMPLEMENTED: LACKS UTILITY
+    A fitness method to develop model based intent
+    """
     def maximise_num_units_in_territory_check(self,  player_name, intent_type, intent, player):
         # print(4)
         return
 
+    """
+    A fitness method to develop model based intent
+    """
     def occupy_territory_enemy_continent_check(self,  player_name, intent_type, intent, player):
         if player_name == player.name:
             for t in player.territories:
@@ -302,7 +358,10 @@ class Decision_Engine(object):
                     if not t.area.name == adj.area.name and (adj in self.crucial_attack or adj in self.territories_attack):
                         self.annex_territory.append(adj)
         self.annex_territory = compose(list, set)(self.annex_territory)
-        
+
+    """
+    A fitness method to develop model based intent
+    """    
     def eliminate_enemy_player_check(self,  player_name, intent_type, intent, player):
         if not player.name in intent and len(intent) > 0:
             for t in player.territories:
@@ -310,6 +369,9 @@ class Decision_Engine(object):
                     if o.owner.name in intent and self.check_recursive( t.forces, o.forces) > 0.5:
                         self.eliminate_territories.append(o)
 
+    """
+    Performs memoised recursive reasoning, sometimes going upto depths of 100 steps with efficiency
+    """
     def check_recursive(self, self_forces, opponent_forces):
         if (self_forces, opponent_forces) in self.memoise_recursion.keys():
             return self.memoise_recursion[(self_forces, opponent_forces)]
@@ -325,6 +387,11 @@ class Decision_Engine(object):
         else:
             return 0
 
+    """
+    This method checks the intent analysis and predictions.
+    It also triggers deception if the deceptive strategies are
+    enabled for the agent.
+    """
     def build_strategy(self, world, player, predictions):
         temp = {}
         for p in predictions:
@@ -355,6 +422,10 @@ class Decision_Engine(object):
         self.strategic_attack = compose(list, set)(self.strategic_attack)
         self.strategic_reinforce = compose(list, set)(self.strategic_reinforce)
 
+    """
+    This method takes the input from all the understanding gained by strategy
+    builder to organise the grand strategy
+    """
     def strategic_attack_defence(self, temp, key):
         if key in temp.keys() and len(temp[key]) > 0:
             for t in self.vulnerable:
@@ -382,12 +453,21 @@ class Decision_Engine(object):
                 if t.area.name in temp[key]:
                     self.strategic_attack.append(t)
 
+    """
+    Checks if a territory is surrounded only by opponent players
+    on all sides
+    """
     def is_island_check(self, t):
         for adj in t.adjacent():
             if adj.owner == t.owner:
                 return False
         return True
 
+    """
+    Checks if a territory is surrounded only by opponent players
+    on all sides except one. In that case, the last link can be
+    broken to create an island.
+    """
     def is_island_candidate(self, t):
         count = 0
         for adj in t.adjacent():
@@ -397,6 +477,10 @@ class Decision_Engine(object):
                     return False
         return True
 
+    """
+    Checks if an island can be reunited to other territories of the same
+    player or not.
+    """
     def is_one_hop_away(self, t):
         for adj in t.adjacent():
             terr = []
@@ -443,6 +527,12 @@ class Decision_Engine(object):
                 ,"eliminate_enemy_player"
             ]
 
+    """
+    This method implements the min-cut max-flow graph algorithm,
+    considering troops as capacitance. Therefore, it finds the 
+    minimum number of nodes required to split the enemy subgraph
+    into two parts.
+    """
     def strategise_enemy_fault_lines(self, world, player):
         possible_sources_and_sinks = []
         territory_graph= nx.DiGraph()
@@ -477,6 +567,11 @@ class Decision_Engine(object):
         self.fault_line = shortest_fault_line
         self.deceptive_attack.extend(self.fault_line)
 
+    """
+    This method attempts to find island territories and island candidates,
+    both it's own and those of the opponents and attempts to use them to
+    it's own advantage.
+    """
     def strategise_encirclement(self, world, player):
         self_islands = []
         opponent_islands  = []
@@ -534,6 +629,10 @@ class Decision_Engine(object):
         self.deceptive_attack.extend(attack)
         self.deceptive_reinforce.extend(reinforce)
 
+    """
+    Strategises deception by luring the opponent into such a region where
+    a small force of the player counter-balances multiple troops of the opponent.
+    """
     def strategise_feigned_retreat(self,world, player):
         self_border = {}
         opponent_border = {}
@@ -576,7 +675,11 @@ class Decision_Engine(object):
         self.deceptive_attack.extend(compose(list, set)(attack))
         self.deceptive_reinforce.extend(compose(list, set)(reinforce))
         self.deceptive_retreat = compose(list, set)(retreat)
-                    
+
+
+"""
+UTILITY METHODS BELOW
+"""
 def compose(g, f):
     def h(x):
         return g(f(x))
