@@ -33,16 +33,27 @@ Note: If running on a non-windows machine, check running on docker.
 COMMAND LINE ARGS
 ________________________________________________________________________
 --nocurses, default=True, description=Disable the ncurses map display
+
 --nocolor, default=True, description=Display the map without colors
+
 -l, default=False, description=Write game events to a logfile
+
 -d, default=0.1, description=Delay in seconds after each action is displayed
+
 -s, default=None, description=Random number generator seed
+
 -g, default=1, description=Number of rounds to play
+
 -w, default=False, description=Pause and wait for a keypress after each action
+
 players, description=Names of the AI classes to use. May use 'ExampleAI*3' syntax
+
 --deal", default=False, description="Deal territories rather than letting players choose
+
 -gs, default=False, description=Grid Search For Intent Classifier
+
 -rec, default=False, description=Turn Recording CSV Data On Or Off
+
 
 TESTING AND TRAINING FILES
 ________________________________________________________________________
