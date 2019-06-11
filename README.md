@@ -84,8 +84,8 @@ INSTALL PYTHON
 NOTE: 
 * All tests were run on a Windows machine
 * If wget is not available, install using `apt install wget`
-* If make is not found on docker, run the command `apt-get install --reinstall make`
 * If while running `./configure`, no acceptable C compiler is found in ${path}, run `apt-get install build-essentials` 
+* If make is not found on docker, run the command `apt-get install --reinstall make`
 
 
 INSTALL RISK
