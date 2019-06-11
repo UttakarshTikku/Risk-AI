@@ -27,6 +27,11 @@ class Recorder(object):
     # prepares the training data for the intent engine.
     # Additionally, this method writes the WSIs and related data into CSV files for
     # future use.
+
+    # World State Indicators vs World Outlook
+    # World state indicators stores specific data about the ownership of continents,etc
+    # However world outlook stores data about the more fine-grain data like the owner 
+    # of a specific territory
     def recordGamestate(self, world, game):
         list_of_wsi = []
         world_outlook = set()

@@ -8,6 +8,10 @@ from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
 
 class Intent_Engine(object):
+    """
+    The intent engine loads the learner data from previous games and uses it to train the intent classifier.
+    It uses a multi-label classifier implemented with LinearSVCs to recognise intents.
+    """
     def __init__(self, whoami, window_size=2, load_previous_info=False, load_learner_data=False):
         self.whoami = whoami
         self.WINDOW_SIZE = window_size
@@ -111,13 +115,21 @@ class Intent_Engine(object):
             self.classifiers[ai+"_occupy_territory_Europe"] =  OneVsRestClassifier(LinearSVC(C=100.)).fit(X, data[['occupied_territory_Europe']])
             self.classifiers[ai+"_occupy_territory_North America"] =  OneVsRestClassifier(LinearSVC(C=100.)).fit(X, data[['occupied_territory_North America']])
             self.classifiers[ai+"_occupy_territory_South America"] =  OneVsRestClassifier(LinearSVC(C=100.)).fit(X, data[['occupied_territory_South America']])
-            
+
+    """
+    This method is used to record the world state indicators and evolution of the game overtime,
+    over a specific sized window.
+    """        
     def record_online(self, wsi, world_outlook):
         for row in wsi:
             data = pd.DataFrame({k:v for _,(k,v) in enumerate(row)}, index=[0])
             self.frame = self.frame.append(data)
         self.world_outlook = self.world_outlook.append(pd.DataFrame({k:v for _,(k,v) in enumerate(row)}, index=[0]))
 
+    """
+    This method creates the intent vector at the end of it's run. It calls the various fitness 
+    functions and uses the model-based AI reasoning to produce the output.
+    """
     def find_intent(self, game, player):
         data = self.frame.loc[self.frame['AI_NAME'] == player]
         conquer_one_territory = self.intent_conquer_one_territory(data)
@@ -136,6 +148,7 @@ class Intent_Engine(object):
         }
         return intent_dict
 
+    # This is an intent fitness function developed arbitrarily for model-based reasoning
     def intent_conquer_one_territory(self, data):
         confidence = 0
         window = data.tail(self.WINDOW_SIZE)
@@ -148,6 +161,7 @@ class Intent_Engine(object):
                     confidence += 1
         return confidence / self.WINDOW_SIZE
 
+    # This is an intent fitness function developed arbitrarily for model-based reasoning
     def intent_occupy_continent(self, data):
         last = data.tail(self.WINDOW_SIZE)
         percentage = last.filter(regex=(".*_PERCENTAGE"))
@@ -166,6 +180,7 @@ class Intent_Engine(object):
                 heapq.heappush(continents,(forces_dict[0][f] - forces_dict[len(forces_dict) - 1][f], f.split('_')[0]))
         return continents
 
+    # This is an intent fitness function developed arbitrarily for model-based reasoning
     def intent_fortress_continent(self, data):
         last = data.tail(self.WINDOW_SIZE)
         border_forces = last.filter(regex=(".*_BORDER_FORCES"))
@@ -177,6 +192,7 @@ class Intent_Engine(object):
                 heapq.heappush(fortress,( delta, key.split('_')[0]))
         return fortress
 
+    # This is an intent fitness function developed arbitrarily for model-based reasoning
     def intent_maximise_num_units_in_territory(self, game):
         candidates = []
         window = self.world_outlook.tail(round(self.WINDOW_SIZE/2))
@@ -191,6 +207,7 @@ class Intent_Engine(object):
                 candidates.append(territory)
         return candidates
 
+    # This is an intent fitness function developed arbitrarily for model-based reasoning
     def intent_occupy_territory_enemy_continent(self, data):
         window = data.tail(self.WINDOW_SIZE)
         last = window.tail(1)
@@ -209,6 +226,7 @@ class Intent_Engine(object):
                     confidence += 1
         return confidence/self.WINDOW_SIZE
 
+    # This is an intent fitness function developed arbitrarily for model-based reasoning
     def intent_eliminate_enemy_player(self, game):
         candidates = []
         for p in game.players:
@@ -216,6 +234,8 @@ class Intent_Engine(object):
                 candidates.append(p)
         return candidates
 
+    # This method merges the model based reasoning with data-driven learning to generate
+    # a hybrid reasoning for the AI agent.
     def get_intent_predictions(self, ai_name, expanded_intent):
         prediction_dict = {}
         temp = np.fromiter(expanded_intent.values(), dtype=np.int).reshape(1,-1)
