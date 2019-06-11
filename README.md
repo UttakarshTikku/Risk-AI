@@ -69,14 +69,6 @@ ________________________________________________________________________
 
 Then follow the below steps:
 
-
-INSTALL ZLIB
-1. apt-get install git
-2. git clone https://github.com/madler/zlib.git
-3. ./configure --prefix=/usr/local
-4. make
-5. make install
-
 INSTALL PYTHON
 
 1. apt-get update
@@ -97,9 +89,8 @@ NOTE:
 
 
 INSTALL PIP
-1. apt-get install curl libpng-dev zlib1g-dev
-2. curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-3. python3.5 get-pip.py
+1. apt install python3-pip
+
 
 INSTALL RISK
 
