@@ -69,8 +69,15 @@ ________________________________________________________________________
 
 Then follow the below steps:
 
-INSTALL PYTHON
 
+INSTALL ZLIB
+1. apt-get install git
+2. git clone https://github.com/madler/zlib.git
+3. ./configure --prefix=/usr/local
+4. make
+5. make install
+
+INSTALL PYTHON
 
 1. apt-get update
 2. apt-get install libssl-dev openssl
@@ -81,12 +88,18 @@ INSTALL PYTHON
 7. make
 8. make install
 
+
 NOTE: 
 * All tests were run on a Windows machine
 * If wget is not available, install using `apt install wget`
 * If while running `./configure`, no acceptable C compiler is found in ${path}, run `apt-get install build-essentials` 
 * If make is not found on docker, run the command `apt-get install --reinstall make`
 
+
+INSTALL PIP
+1. apt-get install curl libpng-dev zlib1g-dev
+2. curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+3. python3.5 get-pip.py
 
 INSTALL RISK
 
