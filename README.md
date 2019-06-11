@@ -60,7 +60,7 @@ ________________________________________________________________________
 The training and testing files are:
 
     training_AI_agents.bat
-    
+
     round_robin_tournament.bat
 
 RUNNING ON DOCKER
@@ -68,6 +68,10 @@ ________________________________________________________________________
 `docker run -ti -v /path/to/code/:/RISK/ --entrypoint /bin/sh ubuntu:18.04`
 
 Then follow the below steps:
+
+INSTALL PYTHON
+
+
 1. apt-get update
 2. apt-get install libssl-dev openssl
 3. wget https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz
@@ -78,7 +82,12 @@ Then follow the below steps:
 8. make install
 
 NOTE: 
-* If wget is not available, install using `apt install wget`
 * All tests were run on a Windows machine
+* If wget is not available, install using `apt install wget`
 * If make is not found on docker, run the command `apt-get install --reinstall make`
 * If while running `./configure`, no acceptable C compiler is found in ${path}, run `apt-get install build-essentials` 
+
+
+INSTALL RISK
+
+Run setup.sh
