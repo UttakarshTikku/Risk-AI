@@ -58,12 +58,14 @@ players, description=Names of the AI classes to use. May use 'ExampleAI*3' synta
 TESTING AND TRAINING FILES
 ________________________________________________________________________
 The training and testing files are:
+
     training_AI_agents.bat
+    
     round_robin_tournament.bat
 
 RUNNING ON DOCKER
 ________________________________________________________________________
-docker run -ti -v /path/to/code/:/RISK/ --entrypoint /bin/sh ubuntu:18.04
+`docker run -ti -v /path/to/code/:/RISK/ --entrypoint /bin/sh ubuntu:18.04`
 
 Then follow the below steps:
 1. apt-get update
